@@ -51,8 +51,10 @@ export default function PurchaseDetailPage() {
                 key={i.itemId}
                 className="flex justify-between rounded-md border p-2"
               >
+                <span>
+                  {i.name} x {i.quantity}
+                </span>
                 <span>{formatCurrency(i.unitPrice * i.quantity)}</span>
-                <span>R$ {(i.unitPrice * i.quantity).toFixed(2)}</span>
               </li>
             ))}
           </ul>
