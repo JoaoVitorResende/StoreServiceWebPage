@@ -9,6 +9,7 @@ const POLLING_INTERVAL_MS = 1500;
 export function usePurchasePolling(id: string) {
   const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) {
@@ -20,14 +21,23 @@ export function usePurchasePolling(id: string) {
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     async function load() {
-      const data = await getPurchase(id);
-      if (cancelled) return;
+      try {
+        const data = await getPurchase(id);
+        if (cancelled) return;
 
-      setPurchase(data);
-      setLoading(false);
+        setPurchase(data);
+        setError(null);
 
-      if (data?.status === "Pending") {
-        timer = setTimeout(load, POLLING_INTERVAL_MS);
+        if (data?.status === "Pending") {
+          timer = setTimeout(load, POLLING_INTERVAL_MS);
+        }
+      } catch (err) {
+        if (cancelled) return;
+        setError(
+          err instanceof Error ? err.message : "Não foi possível carregar a compra."
+        );
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
 
@@ -39,5 +49,5 @@ export function usePurchasePolling(id: string) {
     };
   }, [id]);
 
-  return { purchase, loading };
+  return { purchase, loading, error };
 }

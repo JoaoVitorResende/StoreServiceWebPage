@@ -6,14 +6,29 @@ import { StatusBadge } from "@/features/purchases/components/StatusBadge";
 import { usePurchasePolling } from "@/features/purchases/hooks/usePurchasePolling";
 import { Card } from "@/shared/components/Card";
 import { formatCurrency } from "@/shared/formatCurrency";
+import { useCatalogNames } from "@/features/purchases/hooks/useCatalogNames";
+import { PAYMENT_LABELS } from "@/features/purchases/constants";
+import { ErrorMessage } from "@/shared/components/ErrorMessage";
 
 export default function PurchaseDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
-  const { purchase, loading } = usePurchasePolling(id);
+  const { purchase, loading, error } = usePurchasePolling(id);
+  const itemNames = useCatalogNames();
 
   if (loading) {
     return <p className="p-6">Carregando...</p>;
+  }
+
+  if (error) {
+    return (
+      <main className="mx-auto max-w-xl space-y-2 p-6">
+        <ErrorMessage message={error} />
+        <Link href="/purchases" className="underline">
+          Voltar
+        </Link>
+      </main>
+    );
   }
 
   if (!purchase) {
@@ -27,14 +42,12 @@ export default function PurchaseDetailPage() {
     );
   }
 
-  const items = purchase.items ?? [];
-
   return (
     <main className="mx-auto max-w-2xl space-y-4 p-6">
       <Link href="/purchases" className="text-sm underline">
         Voltar
       </Link>
-      <Card title={`Compra ${purchase.id.slice(0, 8)}`}>
+      <Card title={itemNames[purchase.itemID] ?? `Compra ${purchase.id.slice(0, 8)}`}>
         <div className="space-y-3">
           <p className="flex items-center gap-2">
             Status: <StatusBadge status={purchase.status} />
@@ -44,21 +57,10 @@ export default function PurchaseDetailPage() {
               Motivo: {purchase.rejectionReason}
             </p>
           )}
-
-          <ul className="space-y-1">
-            {items.map((i) => (
-              <li
-                key={i.itemId}
-                className="flex justify-between rounded-md border p-2"
-              >
-                <span>
-                  {i.name} x {i.quantity}
-                </span>
-                <span>{formatCurrency(i.unitPrice * i.quantity)}</span>
-              </li>
-            ))}
-          </ul>
-
+          <p>Quantidade: {purchase.quantity}</p>
+          <p>
+            Pagamento: {PAYMENT_LABELS[purchase.paymentType] ?? purchase.paymentType}
+          </p>
           <p className="text-right font-bold">
             Total: {formatCurrency(purchase.total)}
           </p>
