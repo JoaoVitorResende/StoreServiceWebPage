@@ -1,10 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPurchase, listCatalog } from "../services/purchaseService";
-import type { CatalogItem, CreatePurchaseItemRequest } from "../types";
 import { Button } from "@/shared/components/Button";
 import { formatCurrency } from "@/shared/formatCurrency";
+import { createPurchase, listCatalog } from "../services/purchaseService";
+import type { CatalogItem, PaymentType } from "../types";
+
+const PAYMENT_OPTIONS: { value: PaymentType; label: string }[] = [
+  { value: "Cash", label: "Dinheiro" },
+  { value: "CreditCard", label: "Cartão de crédito" },
+  { value: "DebitCard", label: "Cartão de débito" },
+  { value: "EletronicTransfer", label: "Transferência eletrônica" },
+];
 
 interface PurchaseFormProps {
   onCreated: () => void;
@@ -12,73 +19,49 @@ interface PurchaseFormProps {
 
 export function PurchaseForm({ onCreated }: PurchaseFormProps) {
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
-  const [selectedItemId, setSelectedItemId] = useState("");
+  const [itemId, setItemId] = useState("");
   const [quantityInput, setQuantityInput] = useState("1");
-  const [lines, setLines] = useState<CreatePurchaseItemRequest[]>([]);
+  const [paymentType, setPaymentType] = useState<PaymentType>("CreditCard");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    listCatalog().then(setCatalog);
+    listCatalog()
+      .then(setCatalog)
+      .catch(() => setError("Não foi possível carregar os itens."));
   }, []);
 
-  function findItem(itemId: string): CatalogItem | undefined {
-    return catalog.find((c) => c.id === itemId);
-  }
-
-  function handleAddLine() {
-    if (!findItem(selectedItemId)) {
-      setError("Selecione um item.");
-      return;
-    }
-
-    const quantity = Number(quantityInput.trim());
-    if (!Number.isInteger(quantity) || quantity <= 0) {
-      setError("A quantidade deve ser um número inteiro maior que zero.");
-      return;
-    }
-
-    setError(null);
-
-    const existing = lines.find((l) => l.itemId === selectedItemId);
-    if (existing) {
-      setLines(
-        lines.map((l) =>
-          l.itemId === selectedItemId
-            ? { ...l, quantity: l.quantity + quantity }
-            : l
-        )
-      );
-    } else {
-      setLines([...lines, { itemId: selectedItemId, quantity }]);
-    }
-
-    setSelectedItemId("");
-    setQuantityInput("1");
-  }
-
-  function handleRemoveLine(itemId: string) {
-    setLines(lines.filter((l) => l.itemId !== itemId));
-  }
-
-  const total = lines.reduce((sum, line) => {
-    const item = findItem(line.itemId);
-    return item ? sum + item.unitPrice * line.quantity : sum;
-  }, 0);
+  const selectedItem = catalog.find((c) => c.id === itemId);
+  const quantity = Number(quantityInput.trim());
+  const quantityIsValid = Number.isInteger(quantity) && quantity > 0;
+  const total =
+    selectedItem && quantityIsValid
+      ? Math.round(selectedItem.price * quantity * 100) / 100
+      : 0;
 
   async function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
 
-    if (lines.length === 0) {
-      setError("Adicione pelo menos um item.");
+    if (!selectedItem) {
+      setError("Selecione um item.");
+      return;
+    }
+    if (!quantityIsValid) {
+      setError("A quantidade deve ser um número inteiro maior que zero.");
       return;
     }
 
     setError(null);
     setSubmitting(true);
     try {
-      await createPurchase({ items: lines });
-      setLines([]);
+      await createPurchase({
+        itemID: selectedItem.id,
+        paymentType,
+        quantity,
+        total,
+      });
+      setItemId("");
+      setQuantityInput("1");
       onCreated();
     } catch (err) {
       setError(
@@ -93,14 +76,15 @@ export function PurchaseForm({ onCreated }: PurchaseFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex gap-2">
         <select
-          value={selectedItemId}
-          onChange={(e) => setSelectedItemId(e.target.value)}
+          value={itemId}
+          onChange={(e) => setItemId(e.target.value)}
           className="flex-1 rounded-md border bg-white px-3 py-2"
+          aria-label="Item"
         >
           <option value="">Selecione um item</option>
           {catalog.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.name} - {formatCurrency(c.unitPrice)}
+              {c.title} - {formatCurrency(c.price)}
             </option>
           ))}
         </select>
@@ -110,36 +94,26 @@ export function PurchaseForm({ onCreated }: PurchaseFormProps) {
           className="w-20 rounded-md border bg-white px-3 py-2"
           aria-label="Quantidade"
         />
-        <Button variant="secondary" onClick={handleAddLine}>
-          Adicionar
-        </Button>
       </div>
 
-      {lines.length === 0 ? (
-        <p className="text-sm text-gray-500">Nenhum item adicionado.</p>
-      ) : (
-        <ul className="space-y-1">
-          {lines.map((line) => {
-            const item = findItem(line.itemId);
-            return (
-              <li
-                key={line.itemId}
-                className="flex items-center justify-between rounded-md border p-2"
-              >
-                <span>
-                  {item?.name ?? line.itemId} x {line.quantity}
-                </span>
-                <Button
-                  variant="link-danger"
-                  onClick={() => handleRemoveLine(line.itemId)}
-                >
-                  Remover
-                </Button>
-              </li>
-            );
-          })}
-        </ul>
+      {selectedItem && (
+        <p className="text-sm text-gray-500">
+          Em estoque: {selectedItem.quantity}
+        </p>
       )}
+
+      <select
+        value={paymentType}
+        onChange={(e) => setPaymentType(e.target.value as PaymentType)}
+        className="w-full rounded-md border bg-white px-3 py-2"
+        aria-label="Forma de pagamento"
+      >
+        {PAYMENT_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
 
       <div className="flex items-center justify-between">
         <strong>Total: {formatCurrency(total)}</strong>

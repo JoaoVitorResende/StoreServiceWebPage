@@ -1,31 +1,40 @@
 export type PurchaseStatus = "Pending" | "Confirmed" | "Rejected";
 
+export type PaymentType =
+  | "Cash"
+  | "CreditCard"
+  | "DebitCard"
+  | "EletronicTransfer";
+
 export interface CatalogItem {
   id: string;
-  name: string;
-  unitPrice: number;
+  title: string;
+  description: string;
+  quantity: number;
+  price: number;
 }
 
-export interface PurchaseItem {
-  itemId: string;
-  name: string;
-  unitPrice: number;
-  quantity: number;
+export interface CatalogPage {
+  itens: CatalogItem[];
+  page: number;
+  pageSize: number;
+  totalItens: number;
+  totalPages: number;
 }
 
 export interface Purchase {
   id: string;
-  items: PurchaseItem[];
+  itemID: string;
+  paymentType: PaymentType;
+  quantity: number;
   total: number;
   status: PurchaseStatus;
   rejectionReason: string | null;
 }
 
-export interface CreatePurchaseItemRequest {
-  itemId: string;
-  quantity: number;
-}
-
 export interface CreatePurchaseRequest {
-  items: CreatePurchaseItemRequest[];
+  itemID: string;
+  paymentType: PaymentType;
+  quantity: number;
+  total: number;
 }
