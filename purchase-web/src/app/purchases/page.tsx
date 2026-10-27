@@ -5,6 +5,7 @@ import { PurchaseForm } from "@/features/purchases/components/PurchaseForm";
 import { PurchaseList } from "@/features/purchases/components/PurchaseList";
 import { listPurchases } from "@/features/purchases/services/purchaseService";
 import type { Purchase } from "@/features/purchases/types";
+import { Card } from "@/shared/components/Card";
 
 const REFRESH_INTERVAL_MS = 2000;
 
@@ -22,10 +23,13 @@ export default function PurchasesPage() {
   }, [refresh]);
 
   return (
-    <main className="mx-auto max-w-xl space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Compras</h1>
-      <PurchaseForm onCreated={refresh} />
-      <PurchaseList purchases={purchases} />
+     <main className="mx-auto max-w-2xl space-y-6 p-6">
+      <Card title="Nova compra">
+        <PurchaseForm onCreated={refresh} />
+      </Card>
+      <Card title="Compras">
+        <PurchaseList purchases={purchases} />
+      </Card>
     </main>
   );
 }
