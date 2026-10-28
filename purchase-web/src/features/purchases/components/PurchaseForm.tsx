@@ -78,7 +78,7 @@ export function PurchaseForm({ onCreated }: PurchaseFormProps) {
         <select
           value={itemId}
           onChange={(e) => setItemId(e.target.value)}
-          className="flex-1 rounded-md border bg-white px-3 py-2"
+          className="flex-1 rounded-md border bg-page px-3 py-2"
           aria-label="Item"
         >
           <option value="">Selecione um item</option>
@@ -91,7 +91,7 @@ export function PurchaseForm({ onCreated }: PurchaseFormProps) {
         <input
           value={quantityInput}
           onChange={(e) => setQuantityInput(e.target.value)}
-          className="w-20 rounded-md border bg-white px-3 py-2"
+          className="flex-1 rounded-md border bg-page px-3 py-2"
           aria-label="Quantidade"
         />
       </div>
@@ -105,7 +105,7 @@ export function PurchaseForm({ onCreated }: PurchaseFormProps) {
       <select
         value={paymentType}
         onChange={(e) => setPaymentType(e.target.value as PaymentType)}
-        className="w-full rounded-md border bg-white px-3 py-2"
+        className="w-full rounded-md border  bg-page px-3 py-2"
         aria-label="Forma de pagamento"
       >
         {PAYMENT_OPTIONS.map((o) => (

@@ -7,9 +7,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: "rounded-md bg-gray-900 px-4 py-2 text-white hover:bg-gray-700",
-  secondary: "rounded-md border bg-white px-4 py-2 hover:bg-gray-100",
-  "link-danger": "text-sm text-red-600 underline hover:text-red-800",
+  primary: "rounded-md bg-action px-4 py-2 font-semibold text-white hover:bg-action-hover",
+  secondary: "rounded-md border border-line px-4 py-2 hover:bg-white/5",
+  "link-danger": "text-sm text-red-400 underline hover:text-red-300",
 };
 
 export function Button({

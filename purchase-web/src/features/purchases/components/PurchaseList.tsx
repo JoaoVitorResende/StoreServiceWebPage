@@ -23,7 +23,7 @@ export function PurchaseList({ purchases, itemNames }: PurchaseListProps) {
           <Link href={`/purchases/${p.id}`} className="underline">
             {itemNames[p.itemID] ?? p.itemID.slice(0, 8)}
           </Link>
-          <span className="text-sm text-gray-600">x {p.quantity}</span>
+          <span className="text-sm text-muted">x {p.quantity}</span>
           <span>{formatCurrency(p.total)}</span>
           <StatusBadge status={p.status} />
         </li>
