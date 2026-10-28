@@ -9,6 +9,21 @@ import { formatCurrency } from "@/shared/formatCurrency";
 import { useCatalogNames } from "@/features/purchases/hooks/useCatalogNames";
 import { PAYMENT_LABELS } from "@/features/purchases/constants";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
+import { CatalogItem } from "@/features/purchases/types";
+import { ApiError, http } from "@/shared/http";
+
+export async function getItem(id: string): Promise<CatalogItem | null> {
+  try {
+    return await http<CatalogItem | null>(
+      `/api/items/${encodeURIComponent(id)}`
+    );
+  } catch (err) {
+    if (err instanceof ApiError && (err.status === 404 || err.status === 400)) {
+      return null;
+    }
+    throw err;
+  }
+}
 
 export default function PurchaseDetailPage() {
   const params = useParams<{ id: string }>();
@@ -41,6 +56,8 @@ export default function PurchaseDetailPage() {
       </main>
     );
   }
+
+  
 
   return (
     <main className="mx-auto max-w-2xl space-y-4 p-6">

@@ -11,6 +11,19 @@ export async function listCatalog(): Promise<CatalogItem[]> {
   return page?.itens ?? [];
 }
 
+export async function getItem(id: string): Promise<CatalogItem | null> {
+  try {
+    return await http<CatalogItem | null>(
+      `/api/items/${encodeURIComponent(id)}`
+    );
+  } catch (err) {
+    if (err instanceof ApiError && (err.status === 404 || err.status === 400)) {
+      return null;
+    }
+    throw err;
+  }
+}
+
 export async function listPurchases(): Promise<Purchase[]> {
   const purchases = await http<Purchase[] | null>("/api/purchases");
   return purchases ?? [];

@@ -1,9 +1,9 @@
 import type { PurchaseStatus } from "../types";
 
 const STYLES: Record<PurchaseStatus, string> = {
-  Pending: "bg-yellow-500/15 text-yellow-300",
-  Confirmed: "bg-green-500/15 text-green-300",
-  Rejected: "bg-red-500/15 text-red-300",
+  Pending: "bg-yellow-100 text-yellow-800",
+  Confirmed: "bg-green-100 text-green-800",
+  Rejected: "bg-red-100 text-red-800",
 };
 
 const LABELS: Record<PurchaseStatus, string> = {

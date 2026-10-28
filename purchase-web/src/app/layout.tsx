@@ -6,8 +6,8 @@ import "./globals.css";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Store Service - Compras",
-  description: "Acompanhamento de compras da PurchaseApi",
+  title: "Store Service",
+  description: "Escolha um produto e acompanhe sua compra em tempo real",
 };
 
 export default function RootLayout({

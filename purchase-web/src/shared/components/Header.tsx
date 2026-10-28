@@ -5,7 +5,7 @@ export function Header() {
   return (
     <header className="bg-header">
       <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3">
-        <Link href="/" className="text-xl font-bold text-brand">
+        <Link href="/" className="text-xl font-bold text-ink">
           Store Service
         </Link>
 
@@ -36,7 +36,7 @@ export function Header() {
 
         <nav className="text-sm">
           <Link href="/purchases" className="hover:underline">
-            Compras
+            Minhas compras
           </Link>
         </nav>
       </div>
