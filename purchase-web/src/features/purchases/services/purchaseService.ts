@@ -2,6 +2,8 @@ import { ApiError, http } from "@/shared/http";
 import type {
   CatalogItem,
   CatalogPage,
+  CategoriesResponse,
+  Category,
   CreatePurchaseRequest,
   Purchase,
 } from "../types";
@@ -9,6 +11,11 @@ import type {
 export async function listCatalog(): Promise<CatalogItem[]> {
   const page = await http<CatalogPage | null>("/api/items?page=1&pageSize=50");
   return page?.itens ?? [];
+}
+
+export async function listCategories(): Promise<Category[]> {
+  const result = await http<CategoriesResponse | null>("/api/categories");
+  return result?.categories ?? [];
 }
 
 export async function getItem(id: string): Promise<CatalogItem | null> {

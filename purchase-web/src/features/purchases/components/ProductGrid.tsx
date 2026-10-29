@@ -16,9 +16,10 @@ function normalize(text: string): string {
 
 interface ProductGridProps {
   query: string;
+  categoryId: number | null;
 }
 
-export function ProductGrid({ query }: ProductGridProps) {
+export function ProductGrid({ query, categoryId }: ProductGridProps) {
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,9 +72,11 @@ export function ProductGrid({ query }: ProductGridProps) {
   }
 
   const term = normalize(query.trim());
-  const visible = term
-    ? items.filter((i) => normalize(i.title).includes(term))
-    : items;
+  const visible = items.filter(
+    (i) =>
+      (categoryId === null || i.categoryId === categoryId) &&
+      (!term || normalize(i.title).includes(term))
+  );
 
   if (visible.length === 0) {
     return <p className="text-muted">Nenhum produto encontrado.</p>;

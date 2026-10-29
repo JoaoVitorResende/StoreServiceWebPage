@@ -12,6 +12,7 @@ export interface CatalogItem {
   description: string;
   quantity: number;
   price: number;
+  categoryId: number;
 }
 
 export interface CatalogPage {
@@ -38,3 +39,13 @@ export interface CreatePurchaseRequest {
   quantity: number;
   total: number;
 }
+
+export interface Category {
+  id: number;
+  name: string;
+}
+
+export interface CategoriesResponse {
+  categories: Category[];
+}
+
